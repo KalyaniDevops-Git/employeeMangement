@@ -68,6 +68,7 @@ stages {
             bat '''
             docker run -d ^
             --name %CONTAINER_NAME% ^
+            --network employee-network ^
             -p 9091:9090 ^
             %IMAGE_NAME%
             '''

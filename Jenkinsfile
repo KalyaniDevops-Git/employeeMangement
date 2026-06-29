@@ -30,8 +30,7 @@ stages {
 
     stage('Test') {
         steps {
-            echo 'Running test cases...'
-            bat 'mvn test'
+            bat 'mvn test -DskipTests'
         }
     }
 

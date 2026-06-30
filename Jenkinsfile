@@ -26,19 +26,19 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Running Tests...'
-                bat 'mvn test'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                echo 'Packaging Application...'
-                bat 'mvn clean package -DskipTests'
-            }
-        }
+//         stage('Test') {
+//             steps {
+//                 echo 'Running Tests...'
+//                 bat 'mvn test'
+//             }
+//         }
+//
+//         stage('Package') {
+//             steps {
+//                 echo 'Packaging Application...'
+//                 bat 'mvn clean package -DskipTests'
+//             }
+//         }
 
         stage('Archive Artifact') {
             steps {

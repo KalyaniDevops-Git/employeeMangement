@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+
+  mysql:
+
+    image: mysql:8.0
+
+    container_name: mysql-container
+
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: root
+
+      MYSQL_DATABASE: employeedb
+
+    ports:
+
+      - "3306:3306"
+
+    networks:
+
+      - employee-network
+
+    volumes:
+
+      - mysql-data:/var/lib/mysql
+
+  springboot:
+
+    build: .
+
+    container_name: employee-management-container
+
+    restart: always
+
+    depends_on:
+
+      - mysql
+
+    ports:
+
+      - "9091:9090"
+
+    networks:
+
+      - employee-network
+
+networks:
+
+  employee-network:
+
+volumes:
+
+  mysql-data:

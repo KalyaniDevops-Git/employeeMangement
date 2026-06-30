@@ -1,95 +1,123 @@
 pipeline {
 
+    agent any
 
-agent any
+    tools {
+        maven 'Maven-3.9'
+    }
 
-tools {
-    maven 'Maven-3.9'
-}
+    environment {
+        IMAGE_NAME = 'employee-management-system'
+        CONTAINER_NAME = 'employee-management-container'
+    }
 
-environment {
-    IMAGE_NAME = 'employee-management-system'
-    CONTAINER_NAME = 'employee-management-container'
-}
+    stages {
 
-stages {
-
-    stage('Checkout') {
-        steps {
-            echo 'Checking out source code...'
-            checkout scm
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
+            }
         }
-    }
 
-    stage('Build') {
-        steps {
-            echo 'Building application...'
-            bat 'mvn clean compile'
+        stage('Build') {
+            steps {
+                echo 'Building application...'
+                bat 'mvn clean compile'
+            }
         }
-    }
 
-    stage('Test') {
-        steps {
-            bat 'mvn test -DskipTests'
+        stage('Test') {
+            steps {
+                echo 'Running test cases...'
+                bat 'mvn test'
+            }
         }
-    }
 
-    stage('Package') {
-        steps {
-            echo 'Creating JAR...'
-            bat 'mvn package -DskipTests'
+        stage('Package') {
+            steps {
+                echo 'Creating JAR...'
+                bat 'mvn package -DskipTests'
+            }
         }
-    }
 
-    stage('Archive Artifact') {
-        steps {
-            archiveArtifacts artifacts: 'target/*.jar'
+        stage('Archive Artifact') {
+            steps {
+                echo 'Archiving JAR...'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
         }
-    }
 
-    stage('Docker Build') {
-        steps {
-            echo 'Building Docker Image...'
-            bat 'docker build -t %IMAGE_NAME% .'
+        stage('Docker Compose Build') {
+            steps {
+                echo 'Building Docker Images...'
+
+                bat '''
+                docker compose build
+                '''
+            }
         }
-    }
 
-    stage('Deploy Container') {
-        steps {
-            echo 'Stopping old container if exists...'
+        stage('Deploy Using Docker Compose') {
+            steps {
 
-            bat '''
-            docker stop %CONTAINER_NAME% || exit 0
-            docker rm %CONTAINER_NAME% || exit 0
-            '''
+                echo 'Stopping old containers...'
 
-            echo 'Starting new container...'
+                bat '''
+                docker compose down || exit 0
+                '''
 
-            bat '''
-            docker run -d ^
-            --name %CONTAINER_NAME% ^
-            --network employee-network ^
-            -p 9091:9090 ^
-            %IMAGE_NAME%
-            '''
+                echo 'Starting containers...'
+
+                bat '''
+                docker compose up -d
+                '''
+            }
         }
+
+        stage('Verify Deployment') {
+            steps {
+
+                echo 'Checking running containers...'
+
+                bat '''
+                docker ps
+                '''
+
+                echo 'Checking Docker Compose Services...'
+
+                bat '''
+                docker compose ps
+                '''
+            }
+        }
+
     }
-}
 
-post {
+    post {
 
-    success {
-        echo 'Build and Deployment Successful'
+        success {
+
+            echo '====================================='
+            echo ' Build and Deployment Successful'
+            echo ' Spring Boot URL : http://localhost:9091'
+            echo '====================================='
+
+        }
+
+        failure {
+
+            echo '====================================='
+            echo ' Build Failed'
+            echo ' Check Jenkins Console Output'
+            echo '====================================='
+
+        }
+
+        always {
+            cleanWs()
+        }
+
     }
-
-    failure {
-        echo 'Build Failed'
-    }
-
-    always {
-        cleanWs()
-    }
-}
-
 
 }

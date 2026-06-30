@@ -33,12 +33,12 @@ pipeline {
 //             }
 //         }
 //
-//         stage('Package') {
-//             steps {
-//                 echo 'Packaging Application...'
-//                 bat 'mvn clean package -DskipTests'
-//             }
-//         }
+        stage('Package') {
+            steps {
+                echo 'Packaging Application...'
+                bat 'mvn clean package -DskipTests'
+            }
+        }
 
         stage('Archive Artifact') {
             steps {

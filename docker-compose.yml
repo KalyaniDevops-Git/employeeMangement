@@ -1,5 +1,5 @@
 version: '3.9'
-
+name: employee-management
 services:
 
   mysql:
@@ -55,3 +55,4 @@ networks:
 volumes:
 
   mysql-data:
+    name: employee_mysql_data

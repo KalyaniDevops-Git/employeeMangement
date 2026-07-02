@@ -4,6 +4,7 @@ pipeline {
 
     tools {
         maven 'Maven-3.9'
+
     }
 
     environment {
@@ -33,6 +34,27 @@ pipeline {
 //             }
 //         }
 //
+stage('SonarQube Analysis') {
+    steps {
+        script {
+            def scannerHome = tool 'SonarScanner'
+
+            withSonarQubeEnv('SonarQube') {
+
+                bat """
+                "${scannerHome}\\bin\\sonar-scanner.bat" ^
+                -Dsonar.projectKey=employee-management-system ^
+                -Dsonar.projectName=employee-management-system ^
+                -Dsonar.sources=src ^
+                -Dsonar.java.binaries=target/classes
+                """
+
+            }
+        }
+    }
+}
+
+
         stage('Package') {
             steps {
                 echo 'Packaging Application...'

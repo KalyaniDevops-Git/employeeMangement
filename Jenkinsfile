@@ -4,8 +4,7 @@ pipeline {
 
     tools {
         maven 'Maven-3.9'
-
-    }
+              }
 
     environment {
         COMPOSE_FILE = 'docker-compose.yml'
@@ -53,7 +52,13 @@ stage('SonarQube Analysis') {
         }
     }
 }
-
+stage('Quality Gate') {
+    steps {
+        timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
 
         stage('Package') {
             steps {
